@@ -21,3 +21,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+/Api2.js
+/api.http
+api.http
+/.env
+/db.json

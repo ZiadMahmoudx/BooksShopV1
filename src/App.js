@@ -2,54 +2,82 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import BookCreate from './components/BookCreate';
 import BookList from './components/BookList';
+
+// App.js
+
 function App() {
   const [books, setBooks] = useState([]);
-  //Reading DATA
+
+  // Reading DATA
   const fetchBooks = useCallback(async () => {
-    const response = await axios.get('http://localhost:3001/books');
-    setBooks(response.data);
+    try {
+      const response = await axios.get(
+        'https://theapi-yeqa.onrender.com/books'
+      );
+      setBooks(response.data);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+    }
   }, []);
+
   useEffect(() => {
     fetchBooks();
   }, [fetchBooks]);
+
   // Create DATA {BOOKS}
-  const creatBook = async (title) => {
-    const response = await axios.post('http://localhost:3001/books', {
-      title
-    });
-
-    const updateBooks = [...books, response.data];
-
-    setBooks(updateBooks);
+  const createBook = async (title) => {
+    try {
+      const response = await axios.post(
+        'https://theapi-yeqa.onrender.com/books',
+        {
+          title
+        }
+      );
+      setBooks([...books, response.data]);
+    } catch (error) {
+      console.error('Error creating book:', error);
+    }
   };
-  // DELTE DATA {BOOKS}
-  const deleteBookById = async (id) => {
-    await axios.delete(`http://localhost:3001/books/${id}`);
-    const updatedBooks = books.filter((book) => {
-      return book.id !== id;
-    });
-    setBooks(updatedBooks);
-  };
-  //EDIT DATA {BOOKS}
-  const editBookById = async (id, newTitle) => {
-    const response = await axios.put(`http://localhost:3001/books/${id}`, {
-      title: newTitle
-    });
 
-    const updatedBooks = books.map((book) => {
-      if (id === book.id) {
-        return { ...book, ...response.data };
-      }
-      return book;
-    });
-    setBooks(updatedBooks);
+  const deleteBookById = async (_id) => {
+    console.log('Deleting book with ID:', _id); // Add this logging statement
+    try {
+      await axios.delete(`https://theapi-yeqa.onrender.com/books/${_id}`);
+      setBooks(books.filter((book) => book._id !== _id));
+    } catch (error) {
+      console.error('Error deleting book:', error);
+    }
   };
+
+  // EDIT DATA {BOOKS}
+  const editBookById = async (_id, newTitle) => {
+    console.log('Editing book with ID:', _id); // Add this logging statement
+    try {
+      const response = await axios.put(
+        `https://theapi-yeqa.onrender.com/books/${_id}`,
+        {
+          title: newTitle
+        }
+      );
+
+      const updatedBooks = books.map((book) => {
+        if (_id === book._id) {
+          return { ...book, ...response.data };
+        }
+        return book;
+      });
+      setBooks(updatedBooks);
+    } catch (error) {
+      console.error('Error editing book:', error);
+    }
+  };
+
   // JSX
   return (
     <div className="app">
-      <h1>Reading List </h1>
+      <h1>Reading List</h1>
       <BookList books={books} onDelete={deleteBookById} onEdit={editBookById} />
-      <BookCreate onCreate={creatBook} />
+      <BookCreate onCreate={createBook} />
     </div>
   );
 }
